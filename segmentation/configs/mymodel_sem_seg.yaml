@@ -1,0 +1,129 @@
+dataset: segmentation/configs/datasets/s3dis_dataset.yaml
+total_epoch: 300
+start_epoch: 0
+version: 3
+
+dataloader:
+  train:
+    batch_size: 16
+    shuffle: True
+    num_workers: 0
+    drop_last: True
+    pin_memory: True
+    
+  test:
+    batch_size: 16
+    shuffle: False
+    num_workers: 0
+    drop_last: False
+    pin_memory: True
+
+model:
+  type: MyModel
+  checkpoints: work_dir/S3DISDataset/MyModel/3/model_best.pth
+  # resume: True
+  num_class: &num_class 13
+  data_preprocessor:
+    type: DataPreprocessor
+    data_type: 'points'
+    points_layer:
+      pipelines:
+        furthest_point_sample: 1024
+      points_module:
+        type: DGCNN
+        num_sample: 32
+        in_channels: 9
+        out_channels: 128
+        channels: [128, 256]
+        # norm: {'type': 'BN', 'momentum': 0.01}
+      voxelize: 
+        voxel_size: [0.01, 0.01, 0.1]
+        point_cloud_range: [-1, -1, -1, 1, 1, 5]
+        max_num_points: 5
+        max_voxels: 20000
+  backbone:
+    type: SPQueryBackbone
+    input_encoder: 
+      type: SparseEncoder
+      in_channels: 137
+      channels: [[64], 
+                 [64, 64, 64], 
+                 [64, 64, 64],
+                #  [64, 64, 64],
+                 [128, 128, 128],
+                ]
+      padding: [[1], 
+                [1, 1, 1],
+                [1, 1, 1],
+                [1, 1, 1],
+                # [1, 1, 1],
+               ]
+      out_channels: &aligned_channels 128
+
+    middle_encoder: 
+      num_layer: 1
+      channels: *aligned_channels
+    query_generator:
+      mode: heatmap
+      channels: 128 # for heatmap
+      num_queries: 128
+      num_class: 13
+    num_stage: 3
+    query_module:
+      query_attention:
+        type: PointLocalScaleAttention
+        channels: *aligned_channels
+        kv_channels: [*aligned_channels,*aligned_channels]
+        num_heads: 8
+        attn_drop: 0.1
+        proj_drop: 0.1
+      feats_attention:
+        type: CrossAttention
+        channels: *aligned_channels
+        num_heads: 8
+        attn_drop: 0.1
+        proj_drop: 0.1
+      feed_forward_channels: 1024
+      query_position_embedding: 
+        # channels: 3
+      feats_position_embedding:
+        # channels: 3
+      
+  neck:
+    type: TransformerDecoder
+    feed_forward_channels: 1024
+    attention:
+      type: CascadedPyramidAttention
+      num_heads: 12
+      qkv_bias: False
+      attn_drop: 0.1
+      proj_drop: 0.1
+      local_conv: ~
+      kv_channels: [*aligned_channels, *aligned_channels, *aligned_channels]
+  ca:
+    type: TransformerDecoder
+    feed_forward_channels: 1024
+    attention:
+      type: CrossAttention
+      num_heads: 4
+      qkv_bias: False
+      attn_drop: 0.1
+      proj_drop: 0.1
+      local_conv: ~
+  loss_layer:
+    type: ClsLoss
+
+optimizer:
+  type: Adam
+  lr: 0.0005
+  weight_decay: 0.00001
+
+scheduler:
+  # type: CosineAnnealingWarmRestarts
+  # T_0: 20
+  # T_mult: 1
+  # eta_min: 1.e-8
+
+  type: StepLR
+  step_size: 10
+  gamma: 0.70

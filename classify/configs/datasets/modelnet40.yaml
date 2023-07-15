@@ -1,0 +1,32 @@
+dataset_type: &dataset_type ModelNetDataset
+root: &root modelnet40
+
+train_pipeline: &train_pipeline 
+  # furthest_point_sample_cpu: 1024
+  normalize:
+  translate: [-0.1, 0.1]
+  scale: [0.8, 1.25]
+  shuffle:
+  dropout: 0.875
+  
+
+
+test_pipeline: &test_pipeline 
+  # furthest_point_sample_cpu: 1024
+  normalize:
+
+dataset: 
+    name: ModelNet40
+    train: 
+        type: *dataset_type
+        root: *root
+        split_file: train_files.txt
+        classes_file: shape_names.txt
+        pipelines: *train_pipeline
+    test: 
+        type: *dataset_type
+        root: *root
+        split_file: test_files.txt
+        classes_file: shape_names.txt
+        pipelines: *test_pipeline
+

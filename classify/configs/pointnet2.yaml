@@ -1,0 +1,36 @@
+dataset: classify/configs/datasets/modelnet40.yaml
+epoch: 200
+start_epoch: 0
+version: 1
+model:
+  type: PointNet2
+  # pretrained: work_dir/classify/6/best_acc.pth
+  num_class: 40
+  channels: [[64,64,128], [128,128,256], [256,512,1024]]
+  backbone: 
+    type: PointNet2Encoder
+    channels: [[64,64,128], [128,128,256], [256,512,1024]]
+    num_points: [512,128,~]
+    num_sample: [32,64,~]
+    radius: [~,~,~]
+  loss_layer:
+    type: ClsLoss
+    # type: SmoothClsLoss
+    # smoothing_ratio: 0.01
+
+  train_meter:
+    loss: 
+    instance_accuracy: 
+  
+  test_meter:
+    instance_accuracy: 
+  
+optimizer:
+  type: Adam
+  lr: 0.001
+  weight_decay: 0.0001
+
+scheduler:
+  type: StepLR
+  step_size: 20
+  gamma: 0.70

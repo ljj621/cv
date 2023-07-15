@@ -1,0 +1,28 @@
+dataset_type: &dataset_type S3DISDataset
+dataset_root: &dataset_root /home/lj/MyDisk/DATASET/s3dis
+
+train_pipeline: &train_pipeline 
+  rotate: 
+  translate: [-0.1, 0.1]
+  scale: [0.8, 1.25]
+
+test_pipeline: &test_pipeline ~
+
+dataset: 
+    train: 
+        type: *dataset_type
+        root: *dataset_root
+        split_file: train_5.list
+        pipelines: *train_pipeline
+        num_point: 4096
+        block_size: 1.0
+        sample_rate: 1
+    test: 
+        type: *dataset_type
+        root: *dataset_root
+        split_file: test_5.list
+        pipelines: *test_pipeline
+        num_point: 4096
+        block_size: 1.0
+        sample_rate: ~
+

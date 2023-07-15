@@ -1,0 +1,54 @@
+dataset: configs/dataset/pcn_dataset.yaml
+num_points: &num_points [2048, 512, 128]
+hidden_channels: &hidden_channels 64
+model:
+  type: CompleteDT
+  num_points: *num_points
+  hidden_channels: *hidden_channels
+  generate_num_points: 16384
+  input_conv_layer:
+    type: Conv1d
+    channels: [[3, *hidden_channels], [*hidden_channels, *hidden_channels]]
+    norm_cfg: BN
+    act_cfg: GELU
+  sampling_layer: {type: FPS, num_points: *num_points}
+  encoder_layer:
+    type: CompleteDTEncoder
+    hidden_channels: 64
+    input_layer:
+      type: CrossExtractor
+      num_grouped_layers: [1, 2]
+      sampling_layer: {type: GroupNeighbors, min_radius: 0.2, max_radius: 0.23, nsample: 24}
+      norm_cfg: BN
+      act_cfg: GELU
+    middle_layer: {type: Conv1d}
+    output_layer:
+      type: RelationExtracor
+      pla_layer:
+        type: PointLocalAttention
+      pdma_layer:
+        type: DenseScaledAttention
+        scale_ratio: [1,2]
+  decoder_layer:
+    type: CompleteDTDecoder
+  reg_loss:
+    type: Chamfer3D
+    
+  
+epoch: 300
+start_epoch: 0
+optimizer: 
+  type: 'AdamW' 
+  lr: 1.e-4
+  weight_decay: 0.01
+
+scheduler:
+  type: ExponentialLR
+  gamma: 0.7
+
+
+
+
+
+
+

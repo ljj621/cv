@@ -1,0 +1,57 @@
+dataset: completion/configs/dataset/complete3d_dataset.yaml
+# pretrain: work_dir/Complete3DDataset/MyModel/model_best.pth
+model:
+  type: MyModel
+  channels: &channels [128, 128]
+  num_dense: 2048
+  num_points: [512, 128]
+  encoder: 
+    num_heads: 4
+    qkv_bias: False
+    attn_drop: 0.1
+    proj_drop: 0.1
+    local_conv: ~
+    feed_forward_channels: 1024
+    pos_channels: 3
+  neck:
+    type: TransformerDecoder
+    attention_type: CascadedPyramidAttention
+    num_heads: 8
+    qkv_bias: False
+    attn_drop: 0.1
+    proj_drop: 0.1
+    local_conv: ~
+    feed_forward_channels: 1024
+    pos_channels: ~
+    kv_channels: *channels
+  decoder: 
+    num_heads: 4
+    qkv_bias: False
+    attn_drop: 0.1
+    proj_drop: 0.1
+    local_conv: ~
+    feed_forward_channels: 1024
+    pos_channels: ~
+    
+  loss_layer:
+    type: Chamfer3DLoss
+  
+
+epoch: 100
+start_epoch: 0
+optimizer: 
+  type: AdamW
+  lr: 0.001
+  weight_decay: 0.00001
+
+scheduler:
+  type: StepLR
+  step_size: 40
+  gamma: 0.70
+
+
+
+
+
+
+

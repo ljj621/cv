@@ -1,0 +1,14 @@
+Metadata-Version: 2.1
+Name: ext3d
+Version: 1.0.0
+Summary: UNKNOWN
+Home-page: UNKNOWN
+Author: junl
+Author-email: junl@bit.edu.cn
+License: UNKNOWN
+Platform: UNKNOWN
+Requires: numpy
+Requires: torch
+
+UNKNOWN
+

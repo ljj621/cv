@@ -1,0 +1,25 @@
+dataset_type: &dataset_type ShapeNetPartDataset
+dataset_root: &dataset_root /home/ubuntu/code/datasets/hdf5_data
+
+train_pipeline: &train_pipeline 
+  normalize:
+  translate: [-0.1, 0.1]
+  scale: [0.8, 1.25]
+  shuffle:
+
+test_pipeline: &test_pipeline 
+  normalize:
+
+dataset: 
+    train: 
+        type: *dataset_type
+        root: *dataset_root
+        split_file: train_hdf5_file_list.txt
+        classes_file: all_object_categories.txt
+        pipelines: *train_pipeline
+    test: 
+        type: *dataset_type
+        root: *dataset_root
+        split_file: val_hdf5_file_list.txt
+        classes_file: all_object_categories.txt
+        pipelines: *test_pipeline

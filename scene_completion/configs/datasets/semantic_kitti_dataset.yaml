@@ -1,0 +1,53 @@
+dataset_type: &dataset_type SemanticKITTIDataset
+root: &root /home/lj/MyDisk/DATASET/semantic_kitti/
+
+train_pipeline: &train_pipeline 
+  # to_tensor: ['data', 'label']
+  normalize:{'mean': [0.485, 0.456, 0.406], 'std':[0.229, 0.224, 0.225]}
+  translate: [-0.1, 0.1]
+  scale: [0.8, 1.25]
+  # rotate: [0,1]
+  shuffle:
+  # dropout: 0.875
+  
+
+
+test_pipeline: &test_pipeline 
+  normalize: {'mean': [0.485, 0.456, 0.406], 'std':[0.229, 0.224, 0.225]}
+
+dataset: 
+    name: ModelNet40
+    train: 
+        type: *dataset_type
+        root: *root
+        split_file: ["00", "01", "02", "03", "04", "05", "06", "07", "09", "10"]
+        classes_file: shape_names.txt
+        pipelines: *train_pipeline
+    test: 
+        type: *dataset_type
+        root: *root
+        split_file: ["11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21"]
+        classes_file: shape_names.txt
+        pipelines: *test_pipeline
+      
+    val: 
+        type: *dataset_type
+        root: *root
+        split_file: ["08"]
+        classes_file: shape_names.txt
+        pipelines: *test_pipeline
+
+dataloader:
+  train:
+    batch_size: 24
+    shuffle: True
+    num_workers: 4
+    drop_last: True
+    pin_memory: True
+    
+  test:
+    batch_size: 48
+    shuffle: True
+    num_workers: 0
+    # drop_last: True
+    pin_memory: True

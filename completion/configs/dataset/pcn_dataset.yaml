@@ -1,0 +1,46 @@
+
+root: &root /home/lj/MyProject/DATASET/Completion/PCN
+train_pipeline: &train_pipeline [
+  {type: PointShuffle, sync: False},
+  {type: PointNum, num_points: 2048, padding: 'zero', sync: False},
+  {type: PointMirror, sync: True}]
+test_pipeline: &test_pipeline ~
+
+dataset:
+  train:
+    type: PCNDataset
+    root: *root
+    split: train
+    classes: 'synsetoffset2category.txt'
+    select_classes:  
+    pipeline: *train_pipeline
+    file_type: 'pcd'
+    num_rander: 8
+    test_mode: False
+  test:
+    type: PCNDataset
+    root: *root
+    split: test
+    classes: 'synsetoffset2category.txt'
+    select_classes:  
+    pipeline: *test_pipeline
+    num_rander: 1
+    file_type: 'pcd'
+    test_mode: False
+dataloader:
+  train:
+    batch_size: 48
+    shuffle: True
+    num_workers: 0
+    drop_last: True
+    pin_memory: True
+    collate_cfg: {points: ~, gt: ~, classes_name: list, class_index: list}
+  test:
+    batch_size: 1
+    shuffle: False
+    num_workers: 0
+    pin_memory: True
+    collate_cfg: {points: ~, gt: ~, classes_name: list, class_index: list}
+    
+
+
